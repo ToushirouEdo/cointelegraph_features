@@ -158,9 +158,9 @@ if __name__ == '__main__' :
     path = './data/df_cointelegraph_text_clean.csv'
     df_text_clean = get_data(path,filetype='csv')
     df_text_clean = to_datetime(df_text_clean,col='date')
-    df_test = df_text_clean.iloc[:10]
-    # get_sentiment(df_text_clean,col='title_desc')
-    get_sentiment(df_test,col='title_desc')
+    # df_test = df_text_clean.iloc[:10]
+    get_sentiment(df_text_clean,col='title_desc')
+    # get_sentiment(df_test,col='title_desc')
 
 
 

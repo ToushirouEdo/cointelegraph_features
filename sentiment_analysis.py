@@ -94,7 +94,7 @@ class SentimentAnalysis:
             return pd.Series(probs,index=labels)
         print(col)
         print(df.columns)
-        df[labels] = df[col].progress_apply(lambda text : get_sentiment_text(text,labels))
+        df[labels] = df[col].apply(lambda text : get_sentiment_text(text,labels))
         df = self.get_score_3labels(df)
         return df    
     ## FinBert bad
@@ -109,7 +109,7 @@ class SentimentAnalysis:
                 logits = outputs.logits[0].detach().numpy()
                 probs = softmax(logits)
             return pd.Series(probs, index=labels)
-        df[labels] = df[col].progress_apply(lambda text : get_sentiment_text(text,labels))
+        df[labels] = df[col].apply(lambda text : get_sentiment_text(text,labels))
         df = self.get_score_3labels(df)  
         return df
     
@@ -124,7 +124,7 @@ class SentimentAnalysis:
                 [scores['neg'], scores['neu'], scores['pos'],scores['compound']],
                 index=labels
             )
-        df[labels] = df[col].progress_apply(lambda text : get_sentiment_text(text,labels))
+        df[labels] = df[col].apply(lambda text : get_sentiment_text(text,labels))
         df = self.get_score_3labels(df)  
         return df
 

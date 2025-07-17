@@ -3,15 +3,10 @@ from tqdm.auto import tqdm
 
 import re
 import json
-
-import plotly.express as px
 import pandas as pd
 import numpy as np 
-import matplotlib.pyplot as plt
 from pathlib import Path
 
-
-pd.options.plotting.backend = "plotly"
 
 
 def get_data(path,filetype='csv') :

@@ -69,8 +69,11 @@ class SentimentAnalysis:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name)
         except :
-            pass     
-
+            if self.sa_model == 'Vader' : 
+                pass 
+            else : 
+                print(f'Issue with {self.sa_model}')
+                
     def get_score_3labels(self,df) : 
         eps = 1e-12
         df.loc[:,'feat_sent_score'] = df['feat_sent_positive'] - df['feat_sent_negative']

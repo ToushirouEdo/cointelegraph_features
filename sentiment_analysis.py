@@ -69,7 +69,7 @@ class SentimentAnalysis:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name)
         except :
-            if self.sa_model == 'Vader' : 
+            if sa_model == 'Vader' : 
                 pass 
             else : 
                 print(f'Issue with {self.sa_model}')

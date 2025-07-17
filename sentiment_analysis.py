@@ -141,7 +141,7 @@ def get_sentiment(df_text_clean,col,sa_models=['TwitterRoberta','CryptoBert','Fi
     df_clean_sa = txt_cleaner_sa.clean_column(df_text_clean,col)
     
     ## Sentiment
-    for sa_model in sa_models : 
+    for sa_model in tqdm(sa_models) : 
         print(f'sentiment features {sa_model}')
         sentiment_analyzer = SentimentAnalysis(sa_model='CryptoBert')
         df_sa_features =  sentiment_analyzer.get_sentiment(df_clean_sa,col)
@@ -163,7 +163,6 @@ if __name__ == '__main__' :
 
     
     
-
 
     
 

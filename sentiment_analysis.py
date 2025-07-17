@@ -14,10 +14,8 @@ import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from scipy.special import softmax
-
-from transformers import pipeline
+ 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from transformers import BertTokenizer, BertForSequenceClassification
 from tqdm import tqdm
 
 

@@ -18,9 +18,9 @@ from scipy.special import softmax
 from transformers import pipeline
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from transformers import BertTokenizer, BertForSequenceClassification
+from tqdm import tqdm
 
 
-tqdm.pandas()
 
 
 sequence_to_remove = ['the latest in blockchain tech upgrades, funding announcements and deals. for the period of',

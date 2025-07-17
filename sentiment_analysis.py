@@ -92,8 +92,6 @@ class SentimentAnalysis:
                 output = output[0][0].detach().numpy()
                 probs = softmax(output)
             return pd.Series(probs,index=labels)
-        print(col)
-        print(df.columns)
         df[labels] = df[col].apply(lambda text : get_sentiment_text(text,labels))
         df = self.get_score_3labels(df)
         return df    
@@ -143,7 +141,7 @@ def get_sentiment(df_text_clean,col,sa_models=['TwitterRoberta','CryptoBert','Fi
     ## Sentiment
     for sa_model in tqdm(sa_models) : 
         print(f'sentiment features {sa_model}')
-        sentiment_analyzer = SentimentAnalysis(sa_model='CryptoBert')
+        sentiment_analyzer = SentimentAnalysis(sa_model=sa_model)
         df_sa_features =  sentiment_analyzer.get_sentiment(df_clean_sa,col)
         df_save_data(df_sa_features,
                      path,
@@ -157,8 +155,10 @@ if __name__ == '__main__' :
     path = './data/df_cointelegraph_text_clean.csv'
     df_text_clean = get_data(path,filetype='csv')
     df_text_clean = to_datetime(df_text_clean,col='date')
-    # df_test = df_text_clean.iloc[:10]
-    get_sentiment(df_text_clean,col='title_desc')
+    df_test = df_text_clean.iloc[:10]
+    # get_sentiment(df_text_clean,col='title_desc')
+    get_sentiment(df_test,col='title_desc')
+
 
 
     

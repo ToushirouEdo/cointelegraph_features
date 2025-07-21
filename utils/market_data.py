@@ -3,6 +3,8 @@ import time
 from datetime import datetime, timedelta
 import requests
 
+import argparse
+
 import importlib
 import processing 
 importlib.reload(processing)
@@ -117,10 +119,16 @@ def add_forward_return(df, df_ohlc, n_minutes=5,col_name = None):
             df[f'{col_name}_{n_minute}min'] = df.apply(lambda row : get_return(row,n_minute), axis=1)
     return df
 
-if __name__ == '__main__' : 
-    start = '2025-01-01'
-    end = '2025-07-20'
-    btc = get_btc_history(start_time=start,end_time =end,interval='1m')
+def main(start, end):
+    btc = get_btc_history(start_time=start, end_time=end, interval='1m')
     path = './data/market_data/'
     filename = f'df_btc_1m_{start}_{end}'
-    df_save_data(btc,path,filename,'json',create_folder=True)
+    df_save_data(btc, path, filename, 'json', create_folder=True)
+
+
+if __name__ == '__main__' : 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--start", required=True, help="Start date in YYYY-MM-DD format")
+    parser.add_argument("--end", required=True, help="End date in YYYY-MM-DD format")
+    args = parser.parse_args()
+    main(args.start, args.end)

@@ -136,6 +136,13 @@ class SentimentAnalysis:
   
 def get_sentiment(df_text_clean,col,sa_models=['TwitterRoberta','CryptoBert','FinBert','Vader'],path='./data/sentiment/',filename='df_cointelegraph_sent_') : 
     from sentiment_analysis import sequence_to_remove ,TxtCleanerSentiment, SentimentAnalysis
+    
+    assert 'date' in df_text_clean.columns , 'date not in df_clust'
+    assert df_text_clean.date.is_monotonic_increasing, 'df_clust is not sorted by date'
+    assert not (df_text_clean.date.duplicated().any()), 'duplicated date'
+    assert df_text_clean.date.is_monotonic_increasing, 'dates are not sorted'
+    assert not (df_text_clean.duplicated(subset=['title_desc']).any()), 'duplicated articles (title_desc col)'
+    
     ## Txt cleaning
     print("Txt cleaner sentiment analysis")
     txt_cleaner_sa = TxtCleanerSentiment()
@@ -158,10 +165,10 @@ if __name__ == '__main__' :
     path = './data/text_clean/df_cointelegraph_text_clean.csv'
     df_text_clean = get_data(path,filetype='csv')
     df_text_clean = to_datetime(df_text_clean,col='date')
-    df_test = df_text_clean.iloc[:2000]
-    get_sentiment(df_test,
+    print(len(df_text_clean))
+    get_sentiment(df_text_clean,
                   col='title_desc',
-                  sa_models=['Vader'])
+                  sa_models=['TwitterRoberta','CryptoBert','FinBert','Vader'])
     # get_sentiment(df_test,col='title_desc')
 
 

@@ -95,7 +95,11 @@ class TextCleanerClustering :
     
 
 def get_clean_clust(df,col,path,filename) :
-    
+    assert 'date' in df.columns , 'date not in df_clust'
+    assert df.date.is_monotonic_increasing, 'df_clust is not sorted by date'
+    assert not (df.date.duplicated().any()), 'duplicated date'
+    assert df.date.is_monotonic_increasing, 'dates are not sorted'
+    assert not (df.duplicated(subset=['title_desc']).any()), 'duplicated articles (title_desc col)'
     cleaner_clustering = TextCleanerClustering(df,
                                                col,
                                                seq2remove_vect=seq2remove_vect,
@@ -118,12 +122,12 @@ if __name__ == '__main__' :
     path = './data/text_clean/df_cointelegraph_text_clean.csv'
     df_text_clean = get_data(path,filetype='csv')
     df_text_clean = to_datetime(df_text_clean,col='date')
-    df_test = df_text_clean.iloc[:2000]
+    # df_test = df_text_clean.iloc[:2000]
 
     path_clean_clust = './data/clean_emb/'
     filename_clean_clust='df_cointelegraph_clean_emb'
     # get_clean_clust(df_text_clean,col='title_desc')
-    get_clean_clust(df_test,
+    get_clean_clust(df_text_clean,
                     col='title_desc',
                     path = path_clean_clust, 
                     filename = filename_clean_clust)

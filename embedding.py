@@ -240,7 +240,7 @@ if __name__ == '__main__' :
 
 
     get_embedding(df_clean_emb,
-                  emb_models=['word2vec'],
+                  emb_models=['word2vec','sBert','TfIdf'],
                   col='title_desc', 
                   path = './data/embedding/', 
                   filename = 'df_cointelegraph_emb_')

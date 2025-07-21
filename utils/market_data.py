@@ -117,11 +117,10 @@ def add_forward_return(df, df_ohlc, n_minutes=5,col_name = None):
             df[f'{col_name}_{n_minute}min'] = df.apply(lambda row : get_return(row,n_minute), axis=1)
     return df
 
-
 if __name__ == '__main__' : 
-    start = '2013-01-01'
-    end = '2025-07-21'
+    start = '2025-01-01'
+    end = '2025-07-20'
     btc = get_btc_history(start_time=start,end_time =end,interval='1m')
     path = './data/market_data/'
     filename = f'df_btc_1m_{start}_{end}'
-    df_save_data(btc,path,filename,'json')
+    df_save_data(btc,path,filename,'json',create_folder=True)

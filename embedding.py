@@ -1,44 +1,53 @@
 import importlib 
-import utils.processing as processing
-import utils.nlp_utils
-importlib.reload(utils.nlp_utils)
-from utils.nlp_utils import lemmatization_with_spacy,remove_date_pattern, remove_pattern
+import utils.processing 
+importlib.reload(utils.processing)
 from utils.processing import *
 
-from sklearn.metrics import silhouette_score,silhouette_samples
-from joblib import Parallel, delayed
-
-from tqdm.auto import tqdm
-tqdm.pandas()
-
-from itertools import chain
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-# from sentence_transformers import SentenceTransformer, util
-# from sklearn.feature_extraction.text import CountVectorizer
+
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import DBSCAN
-import collections
-import hdbscan
-
-
-import nltk
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer, WordNetLemmatizer
-from nltk.tokenize import word_tokenize
-
-
-from langdetect import detect, LangDetectException
 from sentence_transformers import SentenceTransformer
 
 
-from sklearn.metrics.pairwise import cosine_similarity
-
 from gensim.models import Word2Vec
-# from nltk.tokenize import word_tokenize
 from gensim.utils import simple_preprocess
-import gensim.downloader as api
+# import gensim.downloader as api
+
+
+
+# import utils.nlp_utils
+# importlib.reload(utils.nlp_utils)
+# from utils.nlp_utils import lemmatization_with_spacy,remove_date_pattern, remove_pattern
+
+
+# from sklearn.metrics import silhouette_score,silhouette_samples
+# from joblib import Parallel, delayed
+
+# from tqdm.auto import tqdm
+# tqdm.pandas()
+
+# from itertools import chain
+
+# from sklearn.cluster import KMeans
+# from sentence_transformers import SentenceTransformer, util
+# from sklearn.feature_extraction.text import CountVectorizer
+# from sklearn.cluster import DBSCAN
+# import collections
+# import hdbscan
+
+
+# import nltk
+# from nltk.corpus import stopwords
+# from nltk.stem import PorterStemmer, WordNetLemmatizer
+# from nltk.tokenize import word_tokenize
+
+
+# from langdetect import detect, LangDetectException
+
+
+# from sklearn.metrics.pairwise import cosine_similarity
+
 
 
 
@@ -65,7 +74,7 @@ import gensim.downloader as api
  
 
 class VectorizeTxt:
-    def __init__(self,df,nb_components=2, pca = True,train=False, df_train=None,max_features=350,lemmatization=True,remove_date=True,**w2v_params):
+    def __init__(self,df,nb_components=2, pca = True,train=False, df_train=None,max_features=350,**w2v_params):
         self.df_embeddings = df.copy()
         # self.df_embeddings.drop_duplicates(subset=['title','description'], inplace=True)
         self.train = train
@@ -73,8 +82,6 @@ class VectorizeTxt:
         self.mapping_embedding_method = {'sBert' : self.sentence_bert, 
                                          'TfIdf' : self.tf_idf,
                                          'word2vec' : self.word2vec}
-        self.lemmatization = lemmatization
-        self.remove_date = remove_date
         self.pca = pca
         self.nb_components = nb_components
         self.max_features = max_features
@@ -167,7 +174,7 @@ class VectorizeTxt:
         pcaa.fit(X_std)
         scores_pca = pcaa.transform(X_std)
         df_pca = pd.concat([self.df_embeddings, pd.DataFrame(scores_pca,index=self.df_embeddings.index)], axis = 1)
-        df_pca.columns = list(self.df_embeddings.columns.values) + [f'emb_{method}_{col}_{str(k)}' for k in range(1,nb_components+1)]
+        df_pca.columns = list(self.df_embeddings.columns.values) + [f'feat_emb_{method}_{str(k)}' for k in range(1,nb_components+1)]
         self.df_embeddings = df_pca
     
     def add_embedding(self,col,embedding_method = 'sBERT') :
@@ -185,7 +192,7 @@ class VectorizeTxt:
                     self.get_pca(col=col,method=method)
                 else : 
                     df_embeddings = pd.concat([self.df_embeddings, pd.DataFrame(self.embeddings,index=self.df_embeddings.index)], axis = 1) ### Si on veut les meme index pour df_embeddings et df               
-                    df_embeddings.columns = list(self.df_embeddings.columns.values) + [f'emb_{method}_{col}_{str(k)}' for k in range(1,self.embeddings.shape[1]+1)]
+                    df_embeddings.columns = list(self.df_embeddings.columns.values) + [f'feat_emb_{method}_{str(k)}' for k in range(1,self.embeddings.shape[1]+1)]
                     self.df_embeddings = df_embeddings        
         elif isinstance(col,list) : 
             for c in col : 
@@ -193,25 +200,23 @@ class VectorizeTxt:
                 self.add_embedding(col=c,embedding_method = embedding_method)
     
     def get_df(self,col,embedding_method) :
-        col = f'clean_to_vect_{col}'
+        col = f'clean_emb_{col}'
         self.add_embedding(col,embedding_method)
         mask = self.df_embeddings.columns.str.startswith('emb_')
         self.df_clean = self.df_embeddings.loc[:,~mask]
         return self.df_embeddings
 
-def get_embedding(df_text_clean,col,emb_models=['word2vec','sBert','TfIdf'],path='./data/embedding/',filename='df_cointelegraph_emb_') : 
-    from sentiment_analysis import sequence_to_remove ,TxtCleanerSentiment, SentimentAnalysis
-    ## Txt cleaning
-    print("Txt cleaner sentiment analysis")
-    txt_cleaner_sa = TxtCleanerSentiment()
-    df_clean_sa = txt_cleaner_sa.clean_column(df_text_clean,col)
-    
+def get_embedding(df_clean_emb,col,emb_models=['word2vec','sBert','TfIdf'],path='./data/embedding/',filename='df_cointelegraph_emb_') : 
+    assert f'clean_emb_{col}' in df_clean_emb.columns, 'Need the df_clean_emb dataframe'
     ## Sentiment
     for emb_model in emb_models : 
-        print(f'sentiment features {emb_model}')
-        sentiment_analyzer = SentimentAnalysis(sa_model='CryptoBert')
-        df_sa_features =  sentiment_analyzer.get_sentiment(df_clean_sa,col)
-        df_save_data(df_sa_features,
+        print(f'emb {emb_model}')
+        vectorizer = VectorizeTxt(df = df_clean_emb,
+                                  nb_components = 150,
+                                  pca = True,
+                                  max_features = 400,)
+        df_emb = vectorizer.get_df(col,emb_model)
+        df_save_data(df_emb,
                      path,
                      filename+emb_model,
                      filetype = 'csv',
@@ -223,18 +228,19 @@ def get_embedding(df_text_clean,col,emb_models=['word2vec','sBert','TfIdf'],path
 if __name__ == '__main__' :
 
     ## Vectorization
-    path = './data/clean_clust/'
-    filename = 'df_cointelegraph_clean_clust.csv'
+    path = './data/clean_emb/'
+    filename = 'df_cointelegraph_clean_emb.csv'
 
-    df_clean_clust = get_data(path = path + filename, filetype = 'csv')
-    df_clean_clust = to_datetime(df_clean_clust,col='date',round=False)
+    df_clean_emb = get_data(path = path + filename, filetype = 'csv')
+    df_clean_emb = to_datetime(df_clean_emb,col='date',round=False)
 
-    assert ~df_clean_clust.date.duplicated().any(), 'duplicated date'
-    assert df_clean_clust.date.is_monotonic_increasing, 'dates are not sorted'
-    assert ~df_clean_clust.duplicated(subset=['title_desc'].any()), 'duplicated articles (title_desc col)'
+    assert ~df_clean_emb.date.duplicated().any(), 'duplicated date'
+    assert df_clean_emb.date.is_monotonic_increasing, 'dates are not sorted'
+    assert ~df_clean_emb.duplicated(subset=['title_desc']).any(), 'duplicated articles (title_desc col)'
 
 
-    get_embedding(df_clean_clust,
+    get_embedding(df_clean_emb,
+                  emb_models=['word2vec'],
                   col='title_desc', 
                   path = './data/embedding/', 
                   filename = 'df_cointelegraph_emb_')

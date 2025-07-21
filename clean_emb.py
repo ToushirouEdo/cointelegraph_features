@@ -90,7 +90,7 @@ class TextCleanerClustering :
             # series = Parallel(n_jobs=n_jobs)(
             #     delayed(remove_date_pattern)(text) for text in tqdm(series, desc="Remove date")
             # )
-        self.df[f'clean_to_vect_{self.col}'] = series
+        self.df[f'clean_emb_{self.col}'] = series
         return self.df
     
 
@@ -115,14 +115,14 @@ def get_clean_clust(df,col,path,filename) :
 
 if __name__ == '__main__' : 
 
-    path = './data/df_cointelegraph_text_clean.csv'
+    path = './data/text_clean/df_cointelegraph_text_clean.csv'
     df_text_clean = get_data(path,filetype='csv')
     df_text_clean = to_datetime(df_text_clean,col='date')
-    df_test = df_text_clean.iloc[:10]
+    df_test = df_text_clean.iloc[:2000]
 
-    path_clean_clust = './data/clean_clust/'
-    filename_clean_clust='df_cointelegraph_clean_clust'
-    # get_clean_clust(df_text_clean,col='title_desc')ß
+    path_clean_clust = './data/clean_emb/'
+    filename_clean_clust='df_cointelegraph_clean_emb'
+    # get_clean_clust(df_text_clean,col='title_desc')
     get_clean_clust(df_test,
                     col='title_desc',
                     path = path_clean_clust, 

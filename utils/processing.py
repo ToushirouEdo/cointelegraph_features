@@ -107,7 +107,7 @@ def set_index(df,col='timestamp',col_name='date',datetime=True,date_format=True,
     df.index.rename(col_name,inplace=True)
     return df
 
-def to_datetime(df, col, date_format=True, timeframe='h', round=True, paris_time=False):
+def to_datetime(df, col, date_format=True, timeframe='h', round=False, paris_time=False):
     """
     Convert a column or list of columns in a DataFrame to datetime, with optional Paris time localization.
 

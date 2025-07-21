@@ -41,7 +41,7 @@ class TxtCleanerSentiment :
         df = df.copy()
         if isinstance(col,str) :
 
-            df[f'sent_clean_{col}'] = df[col].apply(self.cleaning_for_sentiment)
+            df[f'clean_sent_{col}'] = df[col].apply(self.cleaning_for_sentiment)
             return df
         else :
             raise TypeError('col should be a str')
@@ -130,7 +130,7 @@ class SentimentAnalysis:
         return df
 
     def get_sentiment(self,df,col) :
-        col = f'sent_clean_{col}'
+        col = f'clean_sent_{col}'
         df = self.sentiment_models[self.sentiment_model](df,col)
         return df
   
@@ -155,11 +155,13 @@ def get_sentiment(df_text_clean,col,sa_models=['TwitterRoberta','CryptoBert','Fi
 
 if __name__ == '__main__' : 
 
-    path = './data/df_cointelegraph_text_clean.csv'
+    path = './data/text_clean/df_cointelegraph_text_clean.csv'
     df_text_clean = get_data(path,filetype='csv')
     df_text_clean = to_datetime(df_text_clean,col='date')
-    # df_test = df_text_clean.iloc[:10]
-    get_sentiment(df_text_clean,col='title_desc')
+    df_test = df_text_clean.iloc[:2000]
+    get_sentiment(df_test,
+                  col='title_desc',
+                  sa_models=['Vader'])
     # get_sentiment(df_test,col='title_desc')
 
 
